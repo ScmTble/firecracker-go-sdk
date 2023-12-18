@@ -43,6 +43,10 @@ const (
 // configured to use.
 type NetworkInterfaces []NetworkInterface
 
+func (networkInterfaces NetworkInterfaces) Validate(kernelArgs kernelArgs) error {
+	return networkInterfaces.validate(kernelArgs)
+}
+
 func (networkInterfaces NetworkInterfaces) validate(kernelArgs kernelArgs) error {
 	for _, iface := range networkInterfaces {
 		hasCNI := iface.CNIConfiguration != nil
@@ -90,6 +94,15 @@ func (networkInterfaces NetworkInterfaces) validate(kernelArgs kernelArgs) error
 	}
 
 	return nil
+}
+
+func (networkInterfaces NetworkInterfaces) SetupNetwork(
+	ctx context.Context,
+	vmID string,
+	netNSPath string,
+	logger *log.Entry,
+) (error, []func() error) {
+	return networkInterfaces.setupNetwork(ctx, vmID, netNSPath, logger)
 }
 
 // setupNetwork will invoke CNI if needed for any interfaces
@@ -160,6 +173,10 @@ func (networkInterfaces NetworkInterfaces) setupNetwork(
 	return nil, cleanupFuncs
 }
 
+func (networkInterfaces NetworkInterfaces) CniInterface() *NetworkInterface {
+	return networkInterfaces.cniInterface()
+}
+
 // return the network interface that has CNI configuration, or nil if there is no such interface
 func (networkInterfaces NetworkInterfaces) cniInterface() *NetworkInterface {
 	// Validation that there is at most one CNI interface is done as part of the
@@ -172,6 +189,10 @@ func (networkInterfaces NetworkInterfaces) cniInterface() *NetworkInterface {
 	}
 
 	return nil
+}
+
+func (networkInterfaces NetworkInterfaces) StaticIPInterface() *NetworkInterface {
+	return networkInterfaces.staticIPInterface()
 }
 
 // return the network interface that has static IP configuration, or nil if there is no such interface

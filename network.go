@@ -329,6 +329,14 @@ func (cniConf *CNIConfiguration) setDefaults() {
 	}
 }
 
+func (cniConf *CNIConfiguration) SetDefaults() {
+	cniConf.setDefaults()
+}
+
+func (cniConf CNIConfiguration) AsCNIRuntimeConf() *libcni.RuntimeConf {
+	return cniConf.asCNIRuntimeConf()
+}
+
 func (cniConf CNIConfiguration) asCNIRuntimeConf() *libcni.RuntimeConf {
 	return &libcni.RuntimeConf{
 		ContainerID: cniConf.containerID,
